@@ -1,0 +1,63 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+
+# --- Virtual envs ---
+.venv/
+venv/
+env/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# --- Notebooks ---
+.ipynb_checkpoints/
+
+# --- ML artifacts (later phases) ---
+mlruns/                 # MLflow local tracking store
+mlartifacts/
+.dvc/cache/             # DVC cache (we keep .dvc/config tracked)
+.dvc/tmp/
+
+# --- Data ---
+# We track only .gitkeep + small reference samples in git.
+# Real data goes through DVC starting Phase 3.
+data/raw/*
+data/processed/*
+data/external/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/external/.gitkeep
+!data/**/*.dvc
+!data/**/*.md
+
+# --- Models ---
+# Trained model binaries are large + reproducible — don't commit.
+# The model registry (MLflow) is the source of truth from Phase 4 on.
+models/*
+!models/.gitkeep
+!models/**/*.md
+
+# --- Secrets / env ---
+.env
+.env.*
+!.env.example
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Local-only commit history tracker (intentionally not pushed) ---
+.commit-tracker.txt
