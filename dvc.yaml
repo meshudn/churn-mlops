@@ -1,0 +1,18 @@
+# DVC pipeline definition.
+#
+# Each `stage` is a node in a DAG. DVC re-runs a stage when any of its `deps`
+# change (file content, not just timestamps) or when its `cmd` changes.
+# Outputs are versioned in the DVC cache and gitignored automatically.
+#
+# Run the whole pipeline:    uv run dvc repro
+# Run a single stage:        uv run dvc repro <stage_name>
+# Show the DAG:              uv run dvc dag
+
+stages:
+  ingest:
+    cmd: uv run python -m src.ingestion.cli --n-rows 2000 --seed 42
+    deps:
+      - src/ingestion
+    outs:
+      - data/raw/churn.csv
+      - data/processed/churn.csv

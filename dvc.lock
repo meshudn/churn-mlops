@@ -1,0 +1,19 @@
+schema: '2.0'
+stages:
+  ingest:
+    cmd: uv run python -m src.ingestion.cli --n-rows 2000 --seed 42
+    deps:
+    - path: src/ingestion
+      hash: md5
+      md5: ff4052c7792d8ef841fde20ee806b0f9.dir
+      size: 41947
+      nfiles: 12
+    outs:
+    - path: data/processed/churn.csv
+      hash: md5
+      md5: ca160b1da43e2d488805c7119bf71426
+      size: 270831
+    - path: data/raw/churn.csv
+      hash: md5
+      md5: 4f3b2b4832cf2a61f5777472388abc56
+      size: 284373
