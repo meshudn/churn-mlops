@@ -16,3 +16,12 @@ stages:
     outs:
       - data/raw/churn.csv
       - data/processed/churn.csv
+
+  featurize:
+    cmd: uv run python -m src.features.build
+    deps:
+      - data/processed/churn.csv
+      - src/features
+      - src/ingestion/clean.py
+    outs:
+      - data/features/churn_features.csv

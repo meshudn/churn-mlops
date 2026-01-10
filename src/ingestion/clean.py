@@ -21,6 +21,8 @@ breaking change and downstream consumers will notice immediately.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pandas as pd
 import pandera.pandas as pa
 
@@ -115,4 +117,39 @@ def clean(raw: pd.DataFrame) -> pd.DataFrame:
     return CHURN_PROCESSED_SCHEMA.validate(out)
 
 
-__all__ = ["clean", "CHURN_PROCESSED_SCHEMA"]
+PROCESSED_BOOL_COLUMNS: list[str] = [
+    "senior_citizen",
+    "partner",
+    "dependents",
+    "phone_service",
+    "multiple_lines",
+    "online_security",
+    "online_backup",
+    "device_protection",
+    "tech_support",
+    "streaming_tv",
+    "streaming_movies",
+    "paperless_billing",
+    "churn",
+]
+
+
+def load_processed(path: str | Path) -> pd.DataFrame:
+    """Read a processed-format CSV and restore dtypes that CSV cannot preserve.
+
+    Specifically: bool columns serialize to ``"True"`` / ``"False"`` strings
+    that pandas reads back as ``object`` dtype. We map them back to bool so
+    downstream code can rely on the schema's promised types.
+    """
+    df = pd.read_csv(path)
+    for col in PROCESSED_BOOL_COLUMNS:
+        df[col] = df[col].map({"True": True, "False": False}).astype(bool)
+    return CHURN_PROCESSED_SCHEMA.validate(df)
+
+
+__all__ = [
+    "clean",
+    "load_processed",
+    "CHURN_PROCESSED_SCHEMA",
+    "PROCESSED_BOOL_COLUMNS",
+]

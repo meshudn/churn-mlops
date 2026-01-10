@@ -5,8 +5,8 @@ stages:
     deps:
     - path: src/ingestion
       hash: md5
-      md5: ff4052c7792d8ef841fde20ee806b0f9.dir
-      size: 41947
+      md5: 8526181f6532f7e9a82dcb7a86bac2aa.dir
+      size: 43860
       nfiles: 12
     outs:
     - path: data/processed/churn.csv
@@ -17,3 +17,24 @@ stages:
       hash: md5
       md5: 4f3b2b4832cf2a61f5777472388abc56
       size: 284373
+  featurize:
+    cmd: uv run python -m src.features.build
+    deps:
+    - path: data/processed/churn.csv
+      hash: md5
+      md5: ca160b1da43e2d488805c7119bf71426
+      size: 270831
+    - path: src/features
+      hash: md5
+      md5: 84f42058c1938b3b8b8c1bcdc5fbbe11.dir
+      size: 10951
+      nfiles: 6
+    - path: src/ingestion/clean.py
+      hash: md5
+      md5: 1b2677a3f47ee295e8c34b63ab24f1af
+      size: 5298
+    outs:
+    - path: data/features/churn_features.csv
+      hash: md5
+      md5: 72722cd178eb052db60789d9a0494964
+      size: 304358
