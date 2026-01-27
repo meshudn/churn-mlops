@@ -12,16 +12,16 @@ Most ML tutorials stop at `model.fit()`. Real ML systems break *after* that — 
 
 ## The 8-phase build
 
-| #   | Phase                              | Status      | Tutorial                                         |
-| --- | ---------------------------------- | ----------- | ------------------------------------------------ |
-| 1   | Problem definition + setup         | ✅ done     | [docs/01](docs/01_problem_definition_and_setup.md) |
-| 2   | Data ingestion + validation        | ⏳ pending  | —                                                |
-| 3   | Feature engineering + DVC          | ⏳ pending  | —                                                |
-| 4   | Training + MLflow tracking         | ⏳ pending  | —                                                |
-| 5   | Evaluation + model selection       | ⏳ pending  | —                                                |
-| 6   | CI/CD with GitHub Actions          | ⏳ pending  | —                                                |
-| 7   | FastAPI deployment + Docker        | ⏳ pending  | —                                                |
-| 8   | Drift monitoring + retraining loop | ⏳ pending  | —                                                |
+| #   | Phase                              | Status         | Tutorial                                           |
+| --- | ---------------------------------- | -------------- | -------------------------------------------------- |
+| 1   | Problem definition + setup         | ✅ done        | [docs/01](docs/01_problem_definition_and_setup.md) |
+| 2   | Data ingestion + validation        | ✅ done        | [docs/02](docs/02_data_ingestion.md)               |
+| 3   | Feature engineering + DVC          | ✅ done        | [docs/03](docs/03_features_and_dvc.md)             |
+| 4   | Training + MLflow tracking         | 🚧 in progress | —                                                  |
+| 5   | Evaluation + model selection       | ⏳ pending     | —                                                  |
+| 6   | CI/CD with GitHub Actions          | ⏳ pending     | —                                                  |
+| 7   | FastAPI deployment + Docker        | ⏳ pending     | —                                                  |
+| 8   | Drift monitoring + retraining loop | ⏳ pending     | —                                                  |
 
 ## Tech stack
 
