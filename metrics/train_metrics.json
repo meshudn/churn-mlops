@@ -1,0 +1,31 @@
+{
+  "experiment": "churn-baseline",
+  "random_state": 42,
+  "runs": [
+    {
+      "metrics": {
+        "accuracy": 0.6425,
+        "f1": 0.4163265306122449,
+        "pr_auc": 0.3890952303457876,
+        "precision": 0.28651685393258425,
+        "recall": 0.7611940298507462,
+        "roc_auc": 0.7585047734301464
+      },
+      "model_kind": "logreg",
+      "run_id": "4cbba60c43254beca78884ac24c813c7"
+    },
+    {
+      "metrics": {
+        "accuracy": 0.8275,
+        "f1": 0.24175824175824176,
+        "pr_auc": 0.3502328702765619,
+        "precision": 0.4583333333333333,
+        "recall": 0.16417910447761194,
+        "roc_auc": 0.7072296176773788
+      },
+      "model_kind": "random_forest",
+      "run_id": "32ca8f357e3749dcb9e95953430b32bc"
+    }
+  ],
+  "test_size": 0.2
+}

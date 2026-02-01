@@ -26,9 +26,11 @@ env/
 .ipynb_checkpoints/
 
 # --- ML artifacts (later phases) ---
-mlruns/                 # MLflow local tracking store
+# MLflow local tracking store
+mlruns/
 mlartifacts/
-.dvc/cache/             # DVC cache (we keep .dvc/config tracked)
+# DVC cache (we keep .dvc/config tracked)
+.dvc/cache/
 .dvc/tmp/
 
 # --- Data ---

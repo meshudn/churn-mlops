@@ -13,7 +13,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from src.features.schema import CHURN_FEATURES_SCHEMA
-from src.ingestion.clean import PROCESSED_BOOL_COLUMNS
+from src.ingestion.clean import PROCESSED_BOOL_COLUMNS, coerce_bool_columns
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_FEATURES = _REPO_ROOT / "data" / "features" / "churn_features.csv"
@@ -27,9 +27,7 @@ TARGET = "churn"
 def load_features(path: str | Path = DEFAULT_FEATURES) -> pd.DataFrame:
     """Load features CSV and restore bool dtypes lost in CSV serialization."""
     df = pd.read_csv(path)
-    for col in FEATURE_BOOL_COLUMNS:
-        if col in df.columns:
-            df[col] = df[col].map({"True": True, "False": False}).astype(bool)
+    df = coerce_bool_columns(df, FEATURE_BOOL_COLUMNS)
     return CHURN_FEATURES_SCHEMA.validate(df)
 
 

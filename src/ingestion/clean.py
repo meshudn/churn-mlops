@@ -134,21 +134,37 @@ PROCESSED_BOOL_COLUMNS: list[str] = [
 ]
 
 
-def load_processed(path: str | Path) -> pd.DataFrame:
-    """Read a processed-format CSV and restore dtypes that CSV cannot preserve.
+def coerce_bool_columns(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    """Idempotent bool coercion that fails loudly on unexpected values.
 
-    Specifically: bool columns serialize to ``"True"`` / ``"False"`` strings
-    that pandas reads back as ``object`` dtype. We map them back to bool so
-    downstream code can rely on the schema's promised types.
+    pandas read_csv may return either bool dtype (auto-detected from
+    ``True``/``False`` text) or object dtype (mixed-case strings, etc.). This
+    helper handles both and raises if a column contains values that are not
+    bool-like, instead of the previous silent NaN-then-True corruption.
     """
+    for col in columns:
+        if df[col].dtype == bool:
+            continue
+        mapped = df[col].map({"True": True, "False": False, True: True, False: False})
+        if mapped.isna().any():
+            bad = df.loc[mapped.isna(), col].unique().tolist()
+            raise ValueError(
+                f"column {col!r} contains non-bool-like values: {bad[:5]}"
+            )
+        df[col] = mapped.astype(bool)
+    return df
+
+
+def load_processed(path: str | Path) -> pd.DataFrame:
+    """Read a processed-format CSV and restore dtypes lost in serialization."""
     df = pd.read_csv(path)
-    for col in PROCESSED_BOOL_COLUMNS:
-        df[col] = df[col].map({"True": True, "False": False}).astype(bool)
+    df = coerce_bool_columns(df, PROCESSED_BOOL_COLUMNS)
     return CHURN_PROCESSED_SCHEMA.validate(df)
 
 
 __all__ = [
     "clean",
+    "coerce_bool_columns",
     "load_processed",
     "CHURN_PROCESSED_SCHEMA",
     "PROCESSED_BOOL_COLUMNS",

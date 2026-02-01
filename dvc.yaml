@@ -25,3 +25,16 @@ stages:
       - src/ingestion/clean.py
     outs:
       - data/features/churn_features.csv
+
+  train:
+    cmd: uv run python -m src.training.train
+    deps:
+      - data/features/churn_features.csv
+      - src/training
+    # cache: false keeps the metrics file in git (not in the DVC cache),
+    # so metric evolution is visible in commit history. The MLflow tracking
+    # store under mlruns/ is the deeper artifact log; this JSON is the
+    # quick-glance summary CI/CD will gate on in Phase 6.
+    metrics:
+      - metrics/train_metrics.json:
+          cache: false
