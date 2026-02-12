@@ -55,3 +55,20 @@ stages:
       hash: md5
       md5: 3ae4f8945f40c0dfd81d4e9579785c56
       size: 782
+  evaluate:
+    cmd: uv run python -m src.evaluation.promote
+    deps:
+    - path: metrics/train_metrics.json
+      hash: md5
+      md5: 3ae4f8945f40c0dfd81d4e9579785c56
+      size: 782
+    - path: src/evaluation
+      hash: md5
+      md5: 01c61d1797c886597c82ed248b4c00cc.dir
+      size: 21296
+      nfiles: 6
+    outs:
+    - path: metrics/promotion_decision.json
+      hash: md5
+      md5: e9f0da9d8fe26327f30782efba344cef
+      size: 361

@@ -1,0 +1,13 @@
+{
+  "candidate": {
+    "f1": 0.4163265306122449,
+    "model_kind": "logreg",
+    "run_id": "4cbba60c43254beca78884ac24c813c7"
+  },
+  "current_production": null,
+  "decision": "bootstrap",
+  "metric": "f1",
+  "model_name": "churn-model",
+  "promoted_version": "1",
+  "reason": "no current production; registering logreg run as the first version with f1=0.4163"
+}

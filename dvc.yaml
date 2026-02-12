@@ -38,3 +38,16 @@ stages:
     metrics:
       - metrics/train_metrics.json:
           cache: false
+
+  evaluate:
+    cmd: uv run python -m src.evaluation.promote
+    deps:
+      - metrics/train_metrics.json
+      - src/evaluation
+    # The MLflow registry under mlruns/ is implicit state — read but not
+    # declared as a DVC dep (it's machine-local, not bytes-reproducible).
+    # The verdict file IS deterministic given (train_metrics + registry),
+    # which is what we commit and what CI will gate on in Phase 6.
+    metrics:
+      - metrics/promotion_decision.json:
+          cache: false
