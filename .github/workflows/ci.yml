@@ -1,0 +1,45 @@
+name: ci
+
+# Fast-path checks that run on every push and PR. Heavy work (full pipeline
+# reproduction, metric comparison) lives in retrain.yml so this can stay
+# under a couple of minutes.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel previous runs of the same PR when a new commit is pushed.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          # Cache key keyed off uv.lock so dep changes invalidate the cache.
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install Python 3.12
+        run: uv python install 3.12
+
+      - name: Install dependencies (frozen)
+        # --frozen refuses to update uv.lock; if pyproject.toml drifted from
+        # the lock the job fails here with a useful diff. That's what we want
+        # — the lockfile is the contract.
+        run: uv sync --frozen
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Test
+        run: uv run pytest -q
