@@ -1,0 +1,131 @@
+name: retrain
+
+# Implements the three retraining triggers:
+#   1. Code change   - PR / push touching ingestion / features / training code
+#   2. Data change   - dvc.lock changes (DVC's content-addressed data state)
+#   3. Scheduled     - weekly cron, in case nothing else fires for a while
+# Plus workflow_dispatch so you can re-run manually from the Actions UI.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/ingestion/**'
+      - 'src/features/**'
+      - 'src/training/**'
+      - 'src/evaluation/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'dvc.yaml'
+      - 'dvc.lock'
+  pull_request:
+    paths:
+      - 'src/ingestion/**'
+      - 'src/features/**'
+      - 'src/training/**'
+      - 'src/evaluation/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - 'dvc.yaml'
+      - 'dvc.lock'
+  schedule:
+    - cron: '0 6 * * 1'  # Mondays 06:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: retrain-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write  # to comment metric delta on PRs
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Need history so `git show origin/main:metrics/train_metrics.json`
+          # in the regression check can find the baseline.
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Install Python 3.12
+        run: uv python install 3.12
+
+      - name: Install dependencies (frozen)
+        run: uv sync --frozen
+
+      - name: Reproduce pipeline (PR — train only, no registry mutation)
+        if: github.event_name == 'pull_request'
+        # On PRs we stop before `evaluate` so the MLflow registry alias is
+        # not flipped by a candidate that hasn't been merged yet. The
+        # registry on the runner is ephemeral anyway; the meaningful PR
+        # gate is the metric delta against main.
+        run: uv run dvc repro train
+
+      - name: Reproduce full pipeline (push / schedule / manual)
+        if: github.event_name != 'pull_request'
+        run: uv run dvc repro
+
+      - name: Compare metrics against main
+        if: github.event_name == 'pull_request'
+        # Exit code is the merge gate: non-zero -> regression beyond
+        # tolerance -> CI fails the PR. The script also writes
+        # metrics/_delta.md for the comment step regardless.
+        run: uv run python scripts/check_metrics_regression.py
+
+      - name: Comment metric delta on PR (sticky)
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'metrics/_delta.md';
+            if (!fs.existsSync(path)) {
+              core.info(`no ${path} produced; skipping comment`);
+              return;
+            }
+            const body = fs.readFileSync(path, 'utf8');
+            const marker = '<!-- ci-metric-delta -->';
+            const fullBody = body + '\n\n' + marker;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: fullBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: fullBody,
+              });
+            }
+
+      - name: Upload metrics artifacts
+        if: github.event_name != 'pull_request' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: metrics-${{ github.sha }}
+          path: |
+            metrics/train_metrics.json
+            metrics/promotion_decision.json
+          if-no-files-found: ignore
+          retention-days: 14
