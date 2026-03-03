@@ -63,3 +63,7 @@ logs/
 
 # --- Local-only commit history tracker (intentionally not pushed) ---
 .commit-tracker.txt
+
+# --- CI-generated transients ---
+# Regression-check writes the comment body here; created on demand in CI.
+metrics/_delta.md

@@ -17,10 +17,10 @@ Most ML tutorials stop at `model.fit()`. Real ML systems break *after* that — 
 | 1   | Problem definition + setup         | ✅ done        | [docs/01](docs/01_problem_definition_and_setup.md) |
 | 2   | Data ingestion + validation        | ✅ done        | [docs/02](docs/02_data_ingestion.md)               |
 | 3   | Feature engineering + DVC          | ✅ done        | [docs/03](docs/03_features_and_dvc.md)             |
-| 4   | Training + MLflow tracking         | 🚧 in progress | —                                                  |
-| 5   | Evaluation + model selection       | ⏳ pending     | —                                                  |
-| 6   | CI/CD with GitHub Actions          | ⏳ pending     | —                                                  |
-| 7   | FastAPI deployment + Docker        | ⏳ pending     | —                                                  |
+| 4   | Training + MLflow tracking         | ✅ done        | [docs/04](docs/04_training_and_mlflow.md)          |
+| 5   | Evaluation + model selection       | ✅ done        | [docs/05](docs/05_evaluation_and_model_selection.md) |
+| 6   | CI/CD with GitHub Actions          | ✅ done        | [docs/06](docs/06_cicd.md)                         |
+| 7   | FastAPI deployment + Docker        | 🚧 in progress | —                                                  |
 | 8   | Drift monitoring + retraining loop | ⏳ pending     | —                                                  |
 
 ## Tech stack
