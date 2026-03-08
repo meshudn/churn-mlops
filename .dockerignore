@@ -1,0 +1,34 @@
+# Keep the build context lean — these are either irrelevant to the runtime
+# image or are large, machine-local artifacts that should never be baked in.
+
+.git/
+.github/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ML artifacts: registry, datasets, model binaries — never in the image.
+mlruns/
+mlartifacts/
+.dvc/cache/
+.dvc/tmp/
+data/
+models/
+
+# Docs and tests don't ship in the runtime image.
+docs/
+tests/
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/
+
+# Local-only files
+.env
+.env.*
+.commit-tracker.txt
+metrics/_delta.md

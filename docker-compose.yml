@@ -1,0 +1,45 @@
+# Local-dev orchestration for the inference API.
+#
+# Mounts the local mlruns/ directory so the container reads the same MLflow
+# registry the host pipeline produces. The mount is read-only — the inference
+# service has no business writing to the registry.
+#
+# In a real deployment the registry would live behind an HTTP MLflow server
+# backed by Postgres + S3 (or the cloud-managed equivalent). The container's
+# only knob would be CHURN_API_MLFLOW_TRACKING_URI; the rest stays the same.
+#
+# Usage:
+#     docker compose up --build
+#     curl http://localhost:8000/health
+#     curl -X POST http://localhost:8000/predict -H 'content-type: application/json' -d @sample.json
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: churn-mlops-api:local
+    ports:
+      - "8000:8000"
+    environment:
+      CHURN_API_MODEL_NAME: churn-model
+      CHURN_API_MODEL_ALIAS: production
+      CHURN_API_MLFLOW_TRACKING_URI: file:///app/mlruns
+      CHURN_API_THRESHOLD: "0.5"
+    volumes:
+      - ./mlruns:/app/mlruns:ro
+    healthcheck:
+      test:
+        - "CMD"
+        - "python"
+        - "-c"
+        - >-
+          import urllib.request, json, sys;
+          r = urllib.request.urlopen('http://localhost:8000/health', timeout=2);
+          d = json.loads(r.read());
+          sys.exit(0 if d.get('model_loaded') else 1)
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
