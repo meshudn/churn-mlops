@@ -1,12 +1,14 @@
 # syntax=docker/dockerfile:1.7
 #
-# Multi-stage build for the churn-mlops inference API.
+# One image that can both run the inference API and reproduce the DVC
+# pipeline (training + registry bootstrapping). Same image, different
+# entrypoints — see docker-compose.yml for the train/api services.
 #
 # Stage 1 (builder) installs deps into a venv with uv.
-# Stage 2 (runtime) copies just the venv + src/ into a slim base — no
-# build tools or dev deps in the final image.
-#
-# Final image: ~ python:3.12-slim + churn-mlops runtime deps + src/.
+# Stage 2 (runtime) copies the venv + src/ + the small set of metadata
+# files needed to run `uv run dvc repro` inside the container, so the
+# MLflow file-store registry that gets created has container-internal
+# paths (avoids host-path leakage from running training on the host).
 
 ARG PYTHON_VERSION=3.12
 
@@ -36,9 +38,17 @@ RUN useradd --create-home --uid 10001 appuser
 
 WORKDIR /app
 
-# Copy only the artifacts we need to run.
+# Copy only the artifacts we need to run (and to repro the pipeline).
 COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
 COPY --from=builder --chown=appuser:appuser /app/src /app/src
+
+# uv is bundled in the venv via uv tool but we also want the standalone binary
+# for `uv run dvc repro` in the train service. Use the same image as builder.
+COPY --from=ghcr.io/astral-sh/uv:0.5 /uv /usr/local/bin/uv
+
+# Pipeline metadata: pyproject.toml + lockfile so `uv run` works; dvc.yaml +
+# dvc.lock so `dvc repro` knows the pipeline. These are tiny.
+COPY --chown=appuser:appuser pyproject.toml uv.lock dvc.yaml dvc.lock ./
 
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \

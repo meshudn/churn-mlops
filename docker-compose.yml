@@ -1,24 +1,52 @@
 # Local-dev orchestration for the inference API.
 #
-# Mounts the local mlruns/ directory so the container reads the same MLflow
-# registry the host pipeline produces. The mount is read-only — the inference
-# service has no business writing to the registry.
+# Two services share one image:
 #
-# In a real deployment the registry would live behind an HTTP MLflow server
-# backed by Postgres + S3 (or the cloud-managed equivalent). The container's
-# only knob would be CHURN_API_MLFLOW_TRACKING_URI; the rest stays the same.
+#   - ``train``: runs ``dvc repro`` once at startup, populating the named
+#     volume ``mlruns`` with a registry whose paths are container-internal
+#     (``/app/mlruns/...``). Exits when done. Without this, mlruns/ created
+#     on the host has absolute host paths baked into meta.yaml — those paths
+#     don't exist inside the container and the API starts in degraded mode.
+#
+#   - ``api``: waits for ``train`` to complete successfully, then mounts
+#     the same named volume read-only and serves predictions. Restarting
+#     ``api`` re-reads the registry; restarting ``train`` re-trains.
+#
+# In a real deployment the registry would live behind an HTTP MLflow tracking
+# server backed by Postgres + S3; the named-volume + train-service dance
+# disappears and ``CHURN_API_MLFLOW_TRACKING_URI`` becomes the only knob.
 #
 # Usage:
 #     docker compose up --build
 #     curl http://localhost:8000/health
 #     curl -X POST http://localhost:8000/predict -H 'content-type: application/json' -d @sample.json
+#
+#     # Force a re-train run:
+#     docker compose run --rm train
 
 services:
-  api:
+  train:
     build:
       context: .
       dockerfile: Dockerfile
-    image: churn-mlops-api:local
+    image: churn-mlops:local
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        cd /app
+        echo "[train] reproducing pipeline..."
+        uv run dvc repro
+        echo "[train] done. registry now lives at /app/mlruns inside the volume."
+    volumes:
+      - mlruns:/app/mlruns
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+  api:
+    image: churn-mlops:local
+    pull_policy: never  # use the locally-built image
     ports:
       - "8000:8000"
     environment:
@@ -27,7 +55,10 @@ services:
       CHURN_API_MLFLOW_TRACKING_URI: file:///app/mlruns
       CHURN_API_THRESHOLD: "0.5"
     volumes:
-      - ./mlruns:/app/mlruns:ro
+      - mlruns:/app/mlruns:ro
+    depends_on:
+      train:
+        condition: service_completed_successfully
     healthcheck:
       test:
         - "CMD"
@@ -43,3 +74,6 @@ services:
       retries: 5
       start_period: 30s
     restart: unless-stopped
+
+volumes:
+  mlruns:

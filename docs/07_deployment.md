@@ -15,10 +15,13 @@ A FastAPI service (`src/deployment/api.py`) that exposes:
 | `/predict`            | POST   | Single customer record → churn probability + decision        |
 | `/predict/batch`      | POST   | List of records, run as one DataFrame for efficiency         |
 
-Plus a multi-stage `Dockerfile` and `docker-compose.yml` for local serving.
+Plus a multi-stage `Dockerfile` and a `docker-compose.yml` with **two services** sharing one image:
+
+- `train` runs `dvc repro` once at startup, populating a named volume with a registry whose artifact paths are *container-internal* (`/app/mlruns/...`). Exits when done.
+- `api` waits for `train` to finish, mounts the same volume read-only, and serves predictions.
 
 ```bash
-# Spin it up:
+# First time / after model code changes:
 docker compose up --build
 
 # Hit it:
@@ -26,7 +29,12 @@ curl http://localhost:8000/health
 curl -X POST http://localhost:8000/predict \
      -H 'content-type: application/json' \
      -d @sample.json
+
+# Force a fresh training run (e.g. after pulling new data):
+docker compose run --rm train
 ```
+
+> **Why the train service exists:** MLflow's local file-store backend writes *absolute paths* into each run's `meta.yaml`. If you train on the host and bind-mount `./mlruns:/app/mlruns` into the container, the YAML still contains `/Users/<you>/.../mlruns/...` paths the container can't see. Running training inside the container makes the paths container-internal from creation. In a real deployment you'd skip the train service and point at a remote MLflow tracking server (Postgres + S3); the registry is then HTTP-accessed and paths are no longer baked into local YAML. See §14.
 
 ## 2. The deploy unit is the alias, not the model file
 
@@ -198,6 +206,7 @@ Threshold is the most useful one: as Phase 5's tutorial discussed, the right thr
 - **Hardcoding `localhost:5000` for MLflow.** Fine in dev, wrong in prod. Use env vars (we did).
 - **Forgetting to set a healthcheck.** Without `model_loaded`-aware health check, an orchestrator routes traffic to unconfigured containers and you get 503 storms.
 - **Multiple uvicorn workers when the model is large.** Quadruples memory for no real gain on most ML workloads.
+- **Bind-mounting a host-trained `mlruns/` into a container.** MLflow's local file-store records absolute host paths in `meta.yaml`. The container can't resolve them and starts in `degraded` mode. Either train inside the container (the train service in our compose file does this) or use a remote tracking server.
 
 ## 14. What changes at scale
 
