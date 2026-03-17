@@ -5,6 +5,7 @@ description = "End-to-end MLOps system for customer churn prediction — portfol
 requires-python = ">=3.12"
 dependencies = [
     "dvc>=3.67",
+    "evidently>=0.7.21",
     "fastapi>=0.136.1",
     "httpx>=0.28.1",
     "mlflow>=2.10,<3",
