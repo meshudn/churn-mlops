@@ -1,0 +1,178 @@
+{
+  "columns": [
+    {
+      "column": "monthly_charges",
+      "drifted": true,
+      "method": "Wasserstein distance (normed)",
+      "score": 0.29840592936339416,
+      "threshold": 0.1
+    },
+    {
+      "column": "monthly_charges_per_service",
+      "drifted": true,
+      "method": "Wasserstein distance (normed)",
+      "score": 0.26456939245617683,
+      "threshold": 0.1
+    },
+    {
+      "column": "internet_service",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.09989300576934329,
+      "threshold": 0.1
+    },
+    {
+      "column": "services_count",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.03711817576944855,
+      "threshold": 0.1
+    },
+    {
+      "column": "total_charges",
+      "drifted": false,
+      "method": "Wasserstein distance (normed)",
+      "score": 0.03373309116178523,
+      "threshold": 0.1
+    },
+    {
+      "column": "senior_citizen",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.026033586749772596,
+      "threshold": 0.1
+    },
+    {
+      "column": "avg_monthly_spend",
+      "drifted": false,
+      "method": "Wasserstein distance (normed)",
+      "score": 0.024199511264472617,
+      "threshold": 0.1
+    },
+    {
+      "column": "payment_method",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.021017867354294926,
+      "threshold": 0.1
+    },
+    {
+      "column": "gender",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.02051871755578617,
+      "threshold": 0.1
+    },
+    {
+      "column": "contract",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.016766617530461304,
+      "threshold": 0.1
+    },
+    {
+      "column": "phone_service",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.013571359532158796,
+      "threshold": 0.1
+    },
+    {
+      "column": "tenure",
+      "drifted": false,
+      "method": "Wasserstein distance (normed)",
+      "score": 0.010780849333368158,
+      "threshold": 0.1
+    },
+    {
+      "column": "online_backup",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.0103172876271973,
+      "threshold": 0.1
+    },
+    {
+      "column": "dependents",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.008091483709204197,
+      "threshold": 0.1
+    },
+    {
+      "column": "device_protection",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.006549642076693934,
+      "threshold": 0.1
+    },
+    {
+      "column": "online_security",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.005591621030498022,
+      "threshold": 0.1
+    },
+    {
+      "column": "tech_support",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.0055545504076289455,
+      "threshold": 0.1
+    },
+    {
+      "column": "multiple_lines",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.005097501910690096,
+      "threshold": 0.1
+    },
+    {
+      "column": "is_new_customer",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.0041453047290960126,
+      "threshold": 0.1
+    },
+    {
+      "column": "streaming_tv",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.003568200538226149,
+      "threshold": 0.1
+    },
+    {
+      "column": "tenure_bucket",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.0033807252596747325,
+      "threshold": 0.1
+    },
+    {
+      "column": "partner",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.0028314281734425333,
+      "threshold": 0.1
+    },
+    {
+      "column": "streaming_movies",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.0015559517238497727,
+      "threshold": 0.1
+    },
+    {
+      "column": "paperless_billing",
+      "drifted": false,
+      "method": "Jensen-Shannon distance",
+      "score": 0.001077577683414666,
+      "threshold": 0.1
+    }
+  ],
+  "overall": {
+    "dataset_drifted": false,
+    "drift_share": 0.08333333333333333,
+    "drift_share_threshold": 0.5,
+    "drifted_columns": 2
+  }
+}

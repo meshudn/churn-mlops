@@ -51,3 +51,20 @@ stages:
     metrics:
       - metrics/promotion_decision.json:
           cache: false
+
+  monitor:
+    cmd: uv run python -m src.monitoring.drift
+    deps:
+      - data/features/churn_features.csv
+      - src/monitoring
+    outs:
+      # The HTML report can be 100+ KB. Keep it cached (DVC-tracked, git-ignored)
+      # so the repo stays lean; pull from the cache or regenerate locally.
+      - metrics/drift_report.html
+    metrics:
+      # Small structured summary (cache: false -> tracked in git) so a PR diff
+      # shows "drift_share went from 0.0 to 0.65" alongside the model metrics
+      # diff. CI's scheduled trigger reads this to decide whether to fast-track
+      # a retrain.
+      - metrics/drift_report.json:
+          cache: false

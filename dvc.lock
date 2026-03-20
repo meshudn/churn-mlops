@@ -72,3 +72,24 @@ stages:
       hash: md5
       md5: e9f0da9d8fe26327f30782efba344cef
       size: 361
+  monitor:
+    cmd: uv run python -m src.monitoring.drift
+    deps:
+    - path: data/features/churn_features.csv
+      hash: md5
+      md5: 498f612c2227897d57bf362963f6d019
+      size: 322464
+    - path: src/monitoring
+      hash: md5
+      md5: 83c18f3ef9d530f35f449ea2edaf7376.dir
+      size: 18260
+      nfiles: 4
+    outs:
+    - path: metrics/drift_report.html
+      hash: md5
+      md5: 21eda17bd566109f9a250870625546a1
+      size: 4338334
+    - path: metrics/drift_report.json
+      hash: md5
+      md5: 3519887af0000581cc5caf837c729e46
+      size: 4359
