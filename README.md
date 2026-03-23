@@ -10,6 +10,21 @@ This is not a Jupyter notebook. It is a system you can run, retrain, deploy, and
 
 Most ML tutorials stop at `model.fit()`. Real ML systems break *after* that — on data drift, on broken pipelines, on models that beat the previous one in offline metrics but tank in production. This project is the antidote: every component you'd build at a real company, in miniature.
 
+## What this demonstrates
+
+Each of the 8 phases targets one production-ML failure mode and the defense against it:
+
+| Failure mode                                                         | Defense                                  | Where           |
+| -------------------------------------------------------------------- | ---------------------------------------- | --------------- |
+| Upstream silently changes data shape                                 | Pandera schemas on read AND write        | docs/02         |
+| "Works on my machine" — irreproducible data                          | DVC content-addressed pipeline           | docs/03         |
+| Train/serve skew — encoding drifts between training and inference    | Encoder lives inside the persisted Pipeline | docs/04 + 07 |
+| Worse model gets shipped because accuracy went up on imbalanced data | Strict-greater promotion rule on F1      | docs/04 + 05    |
+| Refactor regression — code change silently makes the model worse     | PR metric-delta gate in CI               | docs/06         |
+| Concept drift — relationship between inputs and target changes       | Drift detection + alert (not auto-retrain) | docs/08       |
+
+If you're reviewing this for a role: read **docs/01** for the lifecycle map, then any 2–3 phase tutorials whose failure mode is closest to what your team faces. Each tutorial has a "How to explain this in an interview" section with a 60-second pitch and the canonical follow-up questions.
+
 ## The 8-phase build
 
 | #   | Phase                              | Status         | Tutorial                                           |
@@ -20,8 +35,8 @@ Most ML tutorials stop at `model.fit()`. Real ML systems break *after* that — 
 | 4   | Training + MLflow tracking         | ✅ done        | [docs/04](docs/04_training_and_mlflow.md)          |
 | 5   | Evaluation + model selection       | ✅ done        | [docs/05](docs/05_evaluation_and_model_selection.md) |
 | 6   | CI/CD with GitHub Actions          | ✅ done        | [docs/06](docs/06_cicd.md)                         |
-| 7   | FastAPI deployment + Docker        | 🚧 in progress | —                                                  |
-| 8   | Drift monitoring + retraining loop | ⏳ pending     | —                                                  |
+| 7   | FastAPI deployment + Docker        | ✅ done        | [docs/07](docs/07_deployment.md)                   |
+| 8   | Drift monitoring + retraining loop | ✅ done        | [docs/08](docs/08_drift_and_retraining.md)         |
 
 ## Tech stack
 
